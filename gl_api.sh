@@ -14,6 +14,9 @@ function gl_dir_id()
     fi
 }
 
+# INPUT: $1 an associative array with path as the key and id the value
+#        $2 directory
+# OUTPUT: list sub directories and their ids under dir
 function gl_list_dir()
 {
     local dir=$1
@@ -26,23 +29,22 @@ function gl_list_dir()
     fi
 }
 
+# INPUT: $1 an associative array with path as the key and id the value
+#        $2 directory
+# OUTPUT: list sub directories and their ids under dir
 function gl_list_dir_id()
 {
-    local dir=$1
+    declare -n dirids_array="$1"
+    local dir=$2
     local dir_id=$(gl_dir_id "$dir")
 
     if [ ! -z "$dir_id" ]; then
 	local query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" -XGET "${GITLAB_API}/groups/${dir_id}/subgroups")
 	#declare -A sub_dirs=$(echo $query | jq -r '.[].path as $paths|@sh "[\($paths)]=\(map(select(.path == $paths).id))"')
-	declare -A sub_dirs
         while IFS="=" read -r key value
         do
-	    echo "Got $key"
-	    echo "Got $value"
-            sub_dirs[$key]=$value
+            dirids_array[$key]=$value
 	done < <(echo $query | jq -r '.[].path as $paths|@sh "\($paths)=\(map(select(.path == $paths).id))"')
-	echo "${#sub_dirs[@]}"
-	echo $sub_dirs
     fi
 }
 
