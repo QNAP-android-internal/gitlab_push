@@ -21,7 +21,7 @@ function gl_list_dir()
 
     if [ ! -z "$dir_id" ]; then
 	local query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" -XGET "${GITLAB_API}/groups/${dir_id}/subgroups")
-	local sub_dirs=$(echo $query | jq '.[].path as $paths|@sh "[\($paths)]=\(map(select(.path == $paths).id) | join(" "))"')
+	local sub_dirs=$(echo $query | jq '.[].path')
 	echo $sub_dirs
     fi
 }
@@ -33,7 +33,15 @@ function gl_list_dir_id()
 
     if [ ! -z "$dir_id" ]; then
 	local query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" -XGET "${GITLAB_API}/groups/${dir_id}/subgroups")
-	declare -A sub_dirs=($(echo $query | jq -r '.[].path as $paths|@sh "[\($paths)]=\(map(select(.path == $paths).id))"'))
+	#declare -A sub_dirs=$(echo $query | jq -r '.[].path as $paths|@sh "[\($paths)]=\(map(select(.path == $paths).id))"')
+	declare -A sub_dirs
+        while IFS="=" read -r key value
+        do
+	    echo "Got $key"
+	    echo "Got $value"
+            sub_dirs[$key]=$value
+	done < <(echo $query | jq -r '.[].path as $paths|@sh "\($paths)=\(map(select(.path == $paths).id))"')
+	echo "${#sub_dirs[@]}"
 	echo $sub_dirs
     fi
 }
