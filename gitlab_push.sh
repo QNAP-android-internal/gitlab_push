@@ -8,7 +8,7 @@ declare -A dirs=$(gl_list_dir_id "${TOP_DIR}")
 if [ -z "$dirs" ]; then
     echo "There is no sub dirs under!"
 else
-    for subdir in ${dirs[@]}; do
-        echo $subdir
+    for subdir in ${!dirs[@]}; do
+        echo "$subdir ${dirs[$subdir]}"
     done
 fi
