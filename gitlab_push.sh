@@ -1,13 +1,15 @@
 #!/bin/bash
-TOP=`pwd`
-TOP_DIR="sw2_android_rk356x_group"
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-source ${TOP}/gl_api.sh
+TOP_GROUP="sw2_android_rk356x_group"
+NEW_BRANCH="iei-android-12.1.0_r8"
+
+source ${SCRIPTPATH}/gl_api.sh
 
 function Test_gl_list_dir_id()
 {
     declare -A dirids
-    gl_list_dir_id dirids "${TOP_DIR}"
+    gl_list_dir_id dirids "${TOP_GROUP}"
     if [ "${#dirids[@]}" -eq "0" ]; then
         echo "There is no sub dirs under!"
     else
@@ -20,7 +22,7 @@ function Test_gl_list_dir_id()
 ### This feature needs gitlab version 13.5 or above
 function Test_gl_list_dir_recursive()
 {
-    subdirs=$(gl_list_dir_recursive ${TOP_DIR})
+    subdirs=$(gl_list_dir_recursive ${TOP_GROUP})
     if [ "${#subdirs[@]}" -eq "0" ]; then
         echo "There is no sub dirs under!"
     else
@@ -36,14 +38,34 @@ function Test_gl_create_path()
     gl_create_path "$path"
 }
 
-echo "Test functions..."
-#Test_gl_create_path "${TOP_DIR}/platform/build/tools"
-#Tbest_gl_create_path "${TOP_DIR}/platform/build/maketool"
-#Test_gl_create_path "${TOP_DIR}/development/tools"
-#Test_gl_create_path "${TOP_DIR}/device/rk356x"
+function Test_gl_create_project()
+{
+    local path="$1"
+    gl_create_project "$path"
+}
 
-id=$(gl_path_id "${TOP_DIR}/platform/build")
-echo "Path id is $id"
-gl_del_path "${TOP_DIR}/platform"
-gl_del_path "${TOP_DIR}/development"
-gl_del_path "${TOP_DIR}/device"
+function Test_gl_push_project()
+{
+    local path="$1"
+    gl_create_project "$path"
+    gl_push_project "$path"
+}
+echo "Test functions..."
+Test_gl_push_project "${TOP_GROUP}/tools/acloud"
+#Test_gl_create_project "${TOP_GROUP}/testProject1"
+#Test_gl_create_project "${TOP_GROUP}/testDir1/testProject2"
+#Test_gl_create_project "${TOP_GROUP}/testDir2/testDir3/testProject3"
+#Test_gl_create_project "${TOP_GROUP}/testProject2"
+#Test_gl_create_project "${TOP_GROUP}/testProject3"
+#Test_gl_create_path "${TOP_GROUP}/platform/build/bazel"
+#Test_gl_create_path "${TOP_GROUP}/platform/build/maketool"
+#Test_gl_create_path "${TOP_GROUP}/platform/build/tools"
+#Test_gl_create_path "${TOP_GROUP}/development/tools"
+#Test_gl_create_path "${TOP_GROUP}/development/devel_tools"
+#Test_gl_create_path "${TOP_GROUP}/device/rk356x"
+
+#id=$(gl_path_id "${TOP_GROUP}/platform/build")
+#echo "Path id is $id"
+#gl_del_path "${TOP_GROUP}/platform"
+#gl_del_path "${TOP_GROUP}/development"
+#gl_del_path "${TOP_GROUP}/device"
