@@ -1,6 +1,16 @@
-TOP_GROUP="sw2_android_rk356x_group"
-NEW_BRANCH="iei-android-12.1.0_r8"
+# The token given by gitlab server for accessing server
 TOKEN="WGj-1hBBVYwZSj7S6Ts-"
+
+# Top group(directory) to store the repo
+TOP_GROUP="sw2_android_rk356x_group"
+
+# Branch name to store the repo
+NEW_BRANCH="iei-android-12.1.0_r8"
+
+# Git remote name
+REMOTE_NAME="gitsrv-android"
+
+#gitlab server
 GITLAB_SRV="gitsrv-android.ieiworld.com"
 URL="https://${GITLAB_SRV}"
 GITLAB_API="${URL}/api/v4"

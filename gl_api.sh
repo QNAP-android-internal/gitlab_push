@@ -145,12 +145,17 @@ function gl_push_project()
     local path="$2"
     cd "$path"
 
-    git remote rename origin old-origin
-    git remote remove origin
-    git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
-    git checkout -b ${NEW_BRANCH}
-    git push -u origin --all
-    git push -u origin --tags
+    #git remote rename origin old-origin
+    #git remote remove origin
+    #git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
+    git remote add ${REMOTE_NAME} git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
+    # Check if the branch exists
+    git show-ref --verify --quiet refs/heads/${NEW_BRANCH}
+    if [ $? -ne 0 ]; then
+        git checkout -b ${NEW_BRANCH}
+    fi
+    git push -u ${REMOTE_NAME} --all
+    git push -u ${REMOTE_NAME} --tags
 
     cd -
 }
