@@ -147,13 +147,11 @@ function gl_push_project()
 
     #git remote rename origin old-origin
     #git remote remove origin
-    #git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
-    git remote add ${REMOTE_NAME} git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
-    # Check if the branch exists
-    git show-ref --verify --quiet refs/heads/${NEW_BRANCH}
-    if [ $? -ne 0 ]; then
-        git checkout -b ${NEW_BRANCH}
-    fi
+
+    # Add the remote if the remote doesn't exist
+    git config remote.${REMOTE_NAME}.url >&- || git remote add ${REMOTE_NAME} git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
+    # Create the branch if the branch doesn't exist
+    git show-ref --verify --quiet refs/heads/${NEW_BRANCH} || git checkout -b ${NEW_BRANCH}
     git push -u ${REMOTE_NAME} --all
     git push -u ${REMOTE_NAME} --tags
 
