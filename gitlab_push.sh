@@ -5,6 +5,7 @@ TOP_GROUP="sw2_android_rk356x_group"
 NEW_BRANCH="iei-android-12.1.0_r8"
 
 source ${SCRIPTPATH}/gl_api.sh
+source ${SCRIPTPATH}/xml_api.sh
 
 function Test_gl_list_dir_id()
 {
@@ -50,8 +51,8 @@ function Test_gl_push_project()
     gl_create_project "$path"
     gl_push_project "$path"
 }
-echo "Test functions..."
-Test_gl_push_project "${TOP_GROUP}/tools/acloud"
+#echo "Test functions..."
+DTest_gl_push_project "${TOP_GROUP}/tools/acloud"
 #Test_gl_create_project "${TOP_GROUP}/testProject1"
 #Test_gl_create_project "${TOP_GROUP}/testDir1/testProject2"
 #Test_gl_create_project "${TOP_GROUP}/testDir2/testDir3/testProject3"
