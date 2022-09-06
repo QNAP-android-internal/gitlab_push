@@ -4,4 +4,3 @@ TOKEN="WGj-1hBBVYwZSj7S6Ts-"
 GITLAB_SRV="gitsrv-android.ieiworld.com"
 URL="https://${GITLAB_SRV}"
 GITLAB_API="${URL}/api/v4"
-

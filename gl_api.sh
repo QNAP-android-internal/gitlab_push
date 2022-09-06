@@ -137,16 +137,17 @@ function gl_create_project()
     echo $project_id
 }
 
-# INPUT: $1 as project path
+# INPUT: $1 as project name and $2 as project path
 # OUTPUT: null
 function gl_push_project()
 {
-    local path="$1"
+    local name="$1"
+    local path="$2"
     cd "$path"
 
     git remote rename origin old-origin
     git remote remove origin
-    git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${path}.git
+    git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
     git checkout -b ${NEW_BRANCH}
     git push -u origin --all
     git push -u origin --tags

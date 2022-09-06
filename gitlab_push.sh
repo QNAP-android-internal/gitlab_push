@@ -1,9 +1,7 @@
 #!/bin/bash
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-TOP_GROUP="sw2_android_rk356x_group"
-NEW_BRANCH="iei-android-12.1.0_r8"
-
+source ${SCRIPTPATH}/configs
 source ${SCRIPTPATH}/gl_api.sh
 source ${SCRIPTPATH}/xml_api.sh
 
@@ -89,7 +87,7 @@ for item in "${!repo_projects[@]}"; do
     gl_create_project "${TOP_GROUP}/${name}"
 
     echo "Pushing $item ..."
-    gl_push_project "${path}"
+    gl_push_project "${name}" "${path}"
 done
 
 
