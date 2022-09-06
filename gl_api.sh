@@ -1,7 +1,3 @@
-TOKEN="WGj-1hBBVYwZSj7S6Ts-"
-URL="https://gitsrv-android.ieiworld.com"
-GITLAB_API="${URL}/api/v4"
-
 # INPUT: $1 as directory
 # OUTPUT: get the directory(group) id of $1 dir
 function gl_dir_id()
@@ -146,11 +142,14 @@ function gl_create_project()
 function gl_push_project()
 {
     local path="$1"
+    cd "$path"
 
-    # TODO: currently assume we're under the project directory.
     git remote rename origin old-origin
-    git remote add origin git@gitsrv-android.ieiworld.com:${path}
+    git remote remove origin
+    git remote add origin git@${GITLAB_SRV}:${TOP_GROUP}/${path}.git
     git checkout -b ${NEW_BRANCH}
     git push -u origin --all
     git push -u origin --tags
+
+    cd -
 }

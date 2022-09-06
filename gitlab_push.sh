@@ -52,7 +52,7 @@ function Test_gl_push_project()
     gl_push_project "$path"
 }
 #echo "Test functions..."
-DTest_gl_push_project "${TOP_GROUP}/tools/acloud"
+#Test_gl_push_project "${TOP_GROUP}/tools/acloud"
 #Test_gl_create_project "${TOP_GROUP}/testProject1"
 #Test_gl_create_project "${TOP_GROUP}/testDir1/testProject2"
 #Test_gl_create_project "${TOP_GROUP}/testDir2/testDir3/testProject3"
@@ -70,3 +70,26 @@ DTest_gl_push_project "${TOP_GROUP}/tools/acloud"
 #gl_del_path "${TOP_GROUP}/platform"
 #gl_del_path "${TOP_GROUP}/development"
 #gl_del_path "${TOP_GROUP}/device"
+
+echo "Parsing manifest..."
+declare -A repo_projects
+parse_manifest repo_projects
+
+
+for item in "${!repo_projects[@]}"; do
+    echo "Processing $item ..."
+    name=$item
+    if [ "x${repo_projects[$item]}" = "x" ]; then
+        path=$name
+    else
+        path=${repo_projects[$item]}
+    fi
+
+    echo "Creating project $item on gitlab..."
+    gl_create_project "${TOP_GROUP}/${name}"
+
+    echo "Pushing $item ..."
+    gl_push_project "${path}"
+done
+
+

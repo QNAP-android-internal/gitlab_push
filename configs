@@ -1,0 +1,7 @@
+TOP_GROUP="sw2_android_rk356x_group"
+NEW_BRANCH="iei-android-12.1.0_r8"
+TOKEN="WGj-1hBBVYwZSj7S6Ts-"
+GITLAB_SRV="gitsrv-android.ieiworld.com"
+URL="https://${GITLAB_SRV}"
+GITLAB_API="${URL}/api/v4"
+
