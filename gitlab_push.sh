@@ -1,5 +1,7 @@
 #!/bin/bash
+
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+# A global associative arrsy storing project name and path pairs for further processing
 
 source ${SCRIPTPATH}/configs
 source ${SCRIPTPATH}/gl_api.sh
@@ -69,15 +71,16 @@ function Test_gl_push_project()
 #gl_del_path "${TOP_GROUP}/development"
 #gl_del_path "${TOP_GROUP}/device"
 
-echo "Parsing manifest..."
+printf "Parsing manifest...\n"
+
 declare -A repo_projects
-parse_manifest repo_projects
-
-
-total=${#repo_projects[@]}
+# 'all' for all projects and 'nonaosp' for non aosp projects
+#total_projects=$(parse_manifest repo_projects "nonaosp")
+parse_manifest repo_projects "nonaosp"
+total_projects=${#repo_projects[@]}
 count=0
 for item in "${!repo_projects[@]}"; do
-    echo "---------- Processing $item ----------"
+    printf "########## Processing %s ##########\n" $item
     name=$item
     if [ "x${repo_projects[$item]}" = "x" ]; then
         path=$name
@@ -85,14 +88,12 @@ for item in "${!repo_projects[@]}"; do
         path=${repo_projects[$item]}
     fi
 
-    echo "Creating project $item on gitlab..."
+    printf "Creating project %s on gitlab...\n" $item
     project_id=$(gl_create_project "${TOP_GROUP}/${name}")
-    echo "$item id is $project_id"
+    printf "%s id is %d\n" $item $project_id
 
-    echo "Pushing $item ..."
+    printf "Pushing %s ...\n" $item
     gl_push_project "${name}" "${path}"
-    ((count=count+1))
-    echo -e "---------- ${count}/${total} ----------\n\n"
+    ((count++))
+    printf "########## %d/%d ##########\n\n" $count $total_projects
 done
-
-
