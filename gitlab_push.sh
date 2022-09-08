@@ -74,8 +74,10 @@ declare -A repo_projects
 parse_manifest repo_projects
 
 
+total=${#repo_projects[@]}
+count=0
 for item in "${!repo_projects[@]}"; do
-    echo "Processing $item ..."
+    echo "---------- Processing $item ----------"
     name=$item
     if [ "x${repo_projects[$item]}" = "x" ]; then
         path=$name
@@ -84,10 +86,13 @@ for item in "${!repo_projects[@]}"; do
     fi
 
     echo "Creating project $item on gitlab..."
-    gl_create_project "${TOP_GROUP}/${name}"
+    project_id=$(gl_create_project "${TOP_GROUP}/${name}")
+    echo "$item id is $project_id"
 
     echo "Pushing $item ..."
     gl_push_project "${name}" "${path}"
+    ((count=count+1))
+    echo -e "---------- ${count}/${total} ----------\n\n"
 done
 
 

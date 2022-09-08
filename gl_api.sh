@@ -152,8 +152,9 @@ function gl_push_project()
     git config remote.${REMOTE_NAME}.url >&- || git remote add ${REMOTE_NAME} git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
     # Create the branch if the branch doesn't exist
     git show-ref --verify --quiet refs/heads/${NEW_BRANCH} || git checkout -b ${NEW_BRANCH}
-    git push -u ${REMOTE_NAME} --all
-    git push -u ${REMOTE_NAME} --tags
+    #git push -u ${REMOTE_NAME} --all
+    git push -u ${REMOTE_NAME} ${NEW_BRANCH}:${NEW_BRANCH}
+    #git push -u ${REMOTE_NAME} --tags
 
-    cd -
+    cd - > /dev/null
 }
