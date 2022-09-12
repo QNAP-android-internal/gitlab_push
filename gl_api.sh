@@ -7,7 +7,7 @@ function gl_dir_id()
     local num=$(echo $query | jq --argjson i "[\"$dir\"]" 'map(select(.path==$i[])) | length')
 
     if [[ "$num" -ne "0" ]]; then
-	local id=$(echo $query | jq --argjson i "[\"$dir\"]" '.[]|select(.path==$i[])|.id')
+	local id=$(echo "$query" | jq --argjson i "[\"$dir\"]" '.[]|select(.path==$i[])|.id')
 	echo $id
     fi
 }
@@ -16,13 +16,22 @@ function gl_dir_id()
 # OUTPUT: get the dir id of $1 path
 function gl_path_id()
 {
-    local path="$1"
+    local tmp="$1"
+    local query
+    local id
     # strip leading slash
-    path=${path#/}
+    tmp=${tmp#/}
     # strip trailing slash
-    path=${path%/}
-    local query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET --url "${GITLAB_API}/groups")
-    local id=$(echo $query | jq --argjson i "[\"$path\"]" '.[]|select(.full_path==$i[])|.id')
+    tmp=${tmp%/}
+    pages=$(curl -s --head "${GITLAB_API}/groups?private_token=$PRIVATE_TOKEN&per_page=100" | grep x-total-pages | awk '{print $2}' | tr -d '\r\n')
+    for page in $(seq 1 $pages); do
+        query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET --url "${GITLAB_API}/groups?per_page=100&page=$page")
+        id=$(echo "$query" | jq --argjson i "[\"$tmp\"]" '.[]|select(.full_path==$i[])|.id')
+        if [[ -n "$id" ]]; then
+            break
+        fi
+    done
+
     echo $id
 }
 
@@ -80,17 +89,17 @@ function gl_list_dir_id()
 function gl_create_path()
 {
     local path="$1"
-    local components
+    local -a components
     local temp_dir
     local parent_dir_id
     local dir_id
-    IFS="/" components=( $path )
+    IFS="/" components=($path)
 
     for dir in "${components[@]}"; do
 	temp_dir="${temp_dir}/${dir}"
-        #dir_id=$(gl_path_id "$temp_dir")
-        dir_id=$(gl_dir_id "$dir")
-	if [ ! -z "$dir_id" ]; then
+        dir_id=$(gl_path_id "$temp_dir")
+        #dir_id=$(gl_dir_id "$dir")
+	if [[ -n "$dir_id" ]]; then
             parent_dir_id="$dir_id"
         else
 	    local json_data="{\"name\": \"${dir}\", \"path\": \"${dir}\", \"parent_id\": \"${parent_dir_id}\", \"visibility\": \"internal\",\"description\": \"${dir}\"}" 
@@ -125,11 +134,11 @@ function gl_create_project()
     local path_id
     path=$(dirname "$path")
 
-    if [ ! -z "$path" ]; then
+    if [[ -n "$path" ]]; then
 	path_id=$(gl_create_path "$path")
     fi	
 
-    if [ ! -z "$project" ]; then
+    if [[ -n "$project" ]]; then
         local json_data="{\"name\": \"${project}\", \"path\": \"${project}\",  \"namespace_id\": \"${path_id}\",  \"visibility\": \"internal\", \"description\": \"${project}\",  \"initialize_with_readme\": \"false\"}"
         project_id=$(curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" --header "Content-Type: application/json" --data "$json_data" --url "${GITLAB_API}/projects" | jq '.id')
     fi	

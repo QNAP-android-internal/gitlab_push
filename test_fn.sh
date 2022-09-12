@@ -35,7 +35,7 @@ function Test_gl_list_dir_recursive()
 function Test_gl_create_path()
 {
     local path="$1"
-    printf "Creating path $path..."
+    printf "Creating path $path...\n"
     gl_create_path "$path"
 }
 
@@ -51,20 +51,30 @@ function Test_gl_push_project()
     gl_create_project "$path"
     gl_push_project "$path"
 }
+
+function Test_gl_path_id()
+{
+    local path="$1"
+    local id=$(gl_dir_id "$path")
+    printf "The id of %s is %d" "$path" "$id"
+}
+
 #echo "Test functions..."
-#Test_gl_push_project "${TOP_GROUP}/tools/acloud"
-#Test_gl_create_project "${TOP_GROUP}/testProject1"
-#Test_gl_create_project "${TOP_GROUP}/testDir1/testProject2"
-#Test_gl_create_project "${TOP_GROUP}/testDir2/testDir3/testProject3"
-#Test_gl_create_project "${TOP_GROUP}/testProject2"
-#Test_gl_create_project "${TOP_GROUP}/testProject3"
-#Test_gl_create_path "${TOP_GROUP}/platform/build/bazel"
-#Test_gl_create_path "${TOP_GROUP}/platform/build/maketool"
-#Test_gl_create_path "${TOP_GROUP}/platform/build/tools"
-#Test_gl_create_path "${TOP_GROUP}/development/tools"
-#Test_gl_create_path "${TOP_GROUP}/development/devel_tools"
-#Test_gl_create_path "${TOP_GROUP}/device/rk356x"
-Test_gl_create_path "${TOP_GROUP}/docs"
+Test_gl_push_project "${TOP_GROUP}/tools/acloud"
+Test_gl_create_project "${TOP_GROUP}/testProject1"
+Test_gl_create_project "${TOP_GROUP}/testDir1/testProject2"
+Test_gl_create_project "${TOP_GROUP}/testDir2/testDir3/testProject3"
+Test_gl_create_project "${TOP_GROUP}/testProject2"
+Test_gl_create_project "${TOP_GROUP}/testProject3"
+Test_gl_create_path "${TOP_GROUP}/platform/build/bazel"
+Test_gl_create_path "${TOP_GROUP}/platform/build/maketool"
+Test_gl_create_path "${TOP_GROUP}/platform/build/tools"
+Test_gl_create_path "${TOP_GROUP}/development/tools"
+Test_gl_create_path "${TOP_GROUP}/development/devel_tools"
+Test_gl_create_path "${TOP_GROUP}/device/rk356x"
+
+#Test_gl_path_id "$TOP_GROUP"
+#Test_gl_create_path "${TOP_GROUP}"
 
 #id=$(gl_path_id "${TOP_GROUP}/platform/build")
 #echo "Path id is $id"
