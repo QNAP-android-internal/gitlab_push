@@ -34,9 +34,10 @@ function parse_manifest()
             for item in "${names[@]}"; do
                 prj_remote=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" < <(echo $manifest))
 		# Assume that if no remote defined for the specific project, the default remote is aosp.
-                if [ "x${prj_remote}" = "x" ]; then
+                if [[ -z "${prj_remote}" ]]; then
                     unset 'projects[$item]'
                 fi
+                unset 'prj_remote'
             done
             ;;
         *)
