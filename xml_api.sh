@@ -32,12 +32,14 @@ function parse_manifest()
             ;;
         'nonaosp')
             for item in "${names[@]}"; do
-                prj_remote=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" < <(echo $manifest))
-		# Assume that if no remote defined for the specific project, the default remote is aosp.
-                if [[ -z "${prj_remote}" ]]; then
+		# prjs is an array with 2 elements: (remote revision)
+		prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" < <(echo $manifest)))
+		# If a specific remote or revision defined for the project, we assume the code is different from the default aosp. Pick it 
+		# out for pushing onto gitlab later.
+		if [[ "${#prjs[@]}" -eq 0 ]]; then 
                     unset 'projects[$item]'
                 fi
-                unset 'prj_remote'
+                unset 'prjs'
             done
             ;;
         *)

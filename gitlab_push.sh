@@ -25,7 +25,7 @@ for item in "${!repo_projects[@]}"; do
 
     printf "Creating project %s on gitlab...\n" $item
     project_id=$(gl_create_project "${TOP_GROUP}/${name}")
-    printf "%s id is %d\n" $item $project_id
+    #printf "%s id is %d\n" $item $project_id
 
     printf "Pushing %s ...\n" $item
     gl_push_project "${name}" "${path}"
