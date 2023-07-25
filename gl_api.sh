@@ -35,6 +35,29 @@ function gl_path_id()
     echo $id
 }
 
+# INPUT: $1 as path
+# OUTPUT: get the project id of $1
+function gl_project_id()
+{
+    local tmp="$1"
+    local query
+    local id
+    # strip leading slash
+    tmp=${tmp#/}
+    # strip trailing slash
+    tmp=${tmp%/}
+    pages=$(curl -s --head "${GITLAB_API}/projects?private_token=$TOKEN&per_page=100" | grep x-total-pages | awk '{print $2}' | tr -d '\r\n')
+    for page in $(seq 1 $pages); do
+        query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET --url "${GITLAB_API}/projects?per_page=100&page=$page")
+        id=$(echo "$query" | jq --argjson i "[\"$tmp\"]" '.[]|select(.path_with_namespace==$i[])|.id')
+        if [[ -n "$id" ]]; then
+            break
+        fi
+    done
+
+    echo $id
+}
+
 # INPUT: $1 directory
 # OUTPUT: list sub directories under $1 dir
 function gl_list_dir()
