@@ -25,7 +25,7 @@ function gl_path_id()
     tmp=${tmp%/}
     pages=$(curl -s --head "${GITLAB_API}/groups?private_token=$TOKEN&per_page=100" | grep x-total-pages | awk '{print $2}' | tr -d '\r\n')
     for page in $(seq 1 $pages); do
-        query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET --url "${GITLAB_API}/groups?per_page=100&page=$page")
+        query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET "${GITLAB_API}/groups?per_page=100&page=$page")
         id=$(echo "$query" | jq --argjson i "[\"$tmp\"]" '.[]|select(.full_path==$i[])|.id')
         if [[ -n "$id" ]]; then
             break
@@ -103,7 +103,7 @@ function gl_create_path()
             parent_dir_id="$dir_id"
         else
 	    local json_data="{\"name\": \"${dir}\", \"path\": \"${dir}\", \"parent_id\": \"${parent_dir_id}\", \"visibility\": \"internal\",\"description\": \"${dir}\"}" 
-	    parent_dir_id=$(curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" --header "Content-Type: application/json" --data "$json_data" --url "${GITLAB_API}/groups" | jq '.id')
+	    parent_dir_id=$(curl -s --request POST --header "PRIVATE-TOKEN: $TOKEN" --header "Content-Type: application/json" --data "$json_data" "${GITLAB_API}/groups" | jq '.id')
             unset dir_id
         fi
     done
