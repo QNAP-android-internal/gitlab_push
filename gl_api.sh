@@ -23,7 +23,7 @@ function gl_path_id()
     tmp=${tmp#/}
     # strip trailing slash
     tmp=${tmp%/}
-    pages=$(curl -s --head "${GITLAB_API}/groups?private_token=$PRIVATE_TOKEN&per_page=100" | grep x-total-pages | awk '{print $2}' | tr -d '\r\n')
+    pages=$(curl -s --head "${GITLAB_API}/groups?private_token=$TOKEN&per_page=100" | grep x-total-pages | awk '{print $2}' | tr -d '\r\n')
     for page in $(seq 1 $pages); do
         query=$(curl -s --header "PRIVATE-TOKEN: $TOKEN" --request GET --url "${GITLAB_API}/groups?per_page=100&page=$page")
         id=$(echo "$query" | jq --argjson i "[\"$tmp\"]" '.[]|select(.full_path==$i[])|.id')
