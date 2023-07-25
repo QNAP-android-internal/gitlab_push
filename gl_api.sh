@@ -112,14 +112,17 @@ function gl_list_dir_id()
 function gl_create_path()
 {
     local path="$1"
-    local -a components
     local temp_dir
     local parent_dir_id
     local dir_id
-    IFS="/" components=($path)
+    IFS=/ read -r -a components <<< "$path"
 
     for dir in "${components[@]}"; do
-	temp_dir="${temp_dir}/${dir}"
+        temp_dir="${temp_dir}/${dir}"
+        # strip leading slash
+        temp_dir=${temp_dir#/}
+        # strip trailing slash
+        temp_dir=${temp_dir%/}
         dir_id=$(gl_path_id "$temp_dir")
         #dir_id=$(gl_dir_id "$dir")
 	if [[ -n "$dir_id" ]]; then
