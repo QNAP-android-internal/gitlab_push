@@ -12,7 +12,7 @@ Following command line tools are needed:
 Usage:
 Modify variables in configs to control the program.
 Go to the top directory of the repo you'd like to push and execute
-<directory where gitlab_push is placed>/gitlab_push.sh
+<dir where gitlab_push is placed>/gitlab_push.sh <dir where manifest file will be saved>
 
 --------------
 If the following error occurs when git push to server, follow steps below:

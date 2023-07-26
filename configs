@@ -1,3 +1,9 @@
+# Official AOSP fetch address
+AOSP_FETCH="https://android.googlesource.com/"
+
+# Official AOSP review address
+AOSP_REVIEW="https://android-review.googlesource.com/"
+
 # The token given by gitlab server for accessing server
 TOKEN="WGj-1hBBVYwZSj7S6Ts-"
 

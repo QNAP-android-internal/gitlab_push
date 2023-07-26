@@ -11,7 +11,7 @@ printf "Parsing manifest...\n"
 declare -A repo_projects
 # 'all' for all projects and 'nonaosp' for non aosp projects
 #total_projects=$(parse_manifest repo_projects "nonaosp")
-parse_manifest repo_projects "nonaosp"
+parse_manifest repo_projects "nonaosp" "$1"
 total_projects=${#repo_projects[@]}
 count=0
 for item in "${!repo_projects[@]}"; do
