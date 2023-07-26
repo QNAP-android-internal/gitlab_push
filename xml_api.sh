@@ -17,7 +17,6 @@ function parse_manifest()
     manifest_file=${manifest_file%/}
     manifest_file="$manifest_file/default.xml"
     .repo/repo/repo manifest > $manifest_file
-    manifest=$(cat $manifest_file)
 
     # add new remote node to manifest file
     xmlstarlet ed -L -a /manifest/remote[1] -t elem -n remoteTMP -v "" \
@@ -30,19 +29,23 @@ function parse_manifest()
                      -u "//remote[@name='aosp']/@review" -v \"$AOSP_REVIEW\" \
                      $manifest_file
 
+    #manifest=$(cat $manifest_file)
+
     # List all project names
-    names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n < <(echo $manifest)))
+    #names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n < <(echo $manifest)))
+    #names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n $manifest_file))
 
     #for name in "${names[@]}"; do
     #    projects[${name}]=""
     #done
 
     #for item in "${!projects[@]}"; do
-    for item in "${names[@]}"; do
+    #for item in "${names[@]}"; do
         # Get their paths with their names as keys
         # xmlstarlet sel -t -m '/manifest/project[@name="docs/common"]' -v './@path' -n /tmp/manifest.xml
-        projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" < <(echo $manifest))
-    done
+        #projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" < <(echo $manifest))
+        #projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" $manifest_file)
+    #done
 
     case "$2" in
         'all')
@@ -53,9 +56,45 @@ function parse_manifest()
             done
             ;;
         'nonaosp')
+            printf "analyzing manifest...\n"
+
+            names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n $manifest_file))
+	    # rk/platform/vendor/rockchip/hardware, "hardware" will be 
+	    # regarded as a group(directory). However, it is actually a project. 
+	    # rk/platform/vendor/rockchip/hardware/codec2
+	    # rk/platform/vendor/rockchip/hardware/neuralnetworks
+	    # rk/platform/vendor/rockchip/hardware/rksoundsetting
+	    # rk/platform/vendor/rockchip/hardware/rockit
+	    # previous 4 projects will be affected.
+	    # So we need to fix their paths.
+            for item1 in "${names[@]}"; do
+                for item2 in "${names[@]}"; do
+                    if [[ $item1 == *"$item2"* ]]; then
+                        if [[ $item1 == $item2 ]]; then
+                            continue
+                        else
+                            tmp_str=${item1#$item2}
+                            new_name=${item2%/}
+                            new_name=${new_name%/*}
+                            new_name=${new_name%/}
+                            new_name=${new_name}${tmp_str}
+                            xmlstarlet ed -L -u "//project[@name=\"${item1}\"]/@name" -v "$new_name" $manifest_file
+                        fi
+                    fi
+                done
+            done
+            unset names
+
+	    # make projects an (name path) associative array
+            names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n $manifest_file))
+            for item in "${names[@]}"; do
+                projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" $manifest_file)
+            done
+
             for item in "${names[@]}"; do
 		# prjs is an array with 2 elements: (remote revision)
-		prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" < <(echo $manifest)))
+		#prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" < <(echo $manifest)))
+		prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" $manifest_file))
 		# If a specific remote or revision defined for the project, we assume the code is different from the default aosp. Pick it 
 		# out for pushing onto gitlab later.
 		if [[ "${#prjs[@]}" -eq 0 ]]; then 
