@@ -183,6 +183,8 @@ function gl_push_project()
     #git remote rename origin old-origin
     #git remote remove origin
 
+    git remote remove $REMOTE_NAME
+
     # Add the remote if the remote doesn't exist
     git config remote.${REMOTE_NAME}.url >&- || git remote add ${REMOTE_NAME} git@${GITLAB_SRV}:${TOP_GROUP}/${name}.git
     # Create the branch if the branch doesn't exist
