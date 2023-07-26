@@ -51,7 +51,9 @@ function parse_manifest()
         'all')
             for item in "${names[@]}"; do
                 xmlstarlet ed -L -u "//project[@name=\"${item}\"]/@remote" -v "$REMOTE_NAME" \
+		                 -i "//project[@name=\"${item}\"][not(@remote)]" -t attr -n remote -v "$REMOTE_NAME" \
                                  -u "//project[@name=\"${item}\"]/@revision" -v "$NEW_BRANCH" \
+		                 -i "//project[@name=\"${item}\"][not(@revision)]" -t attr -n revision -v "$NEW_BRANCH" \
                                  $manifest_file
             done
             ;;
@@ -101,7 +103,9 @@ function parse_manifest()
                     unset 'projects[$item]'
                 else
 		    xmlstarlet ed -L -u "//project[@name=\"${item}\"]/@remote" -v "$REMOTE_NAME" \
+		                     -i "//project[@name=\"${item}\"][not(@remote)]" -t attr -n remote -v "$REMOTE_NAME" \
 			             -u "//project[@name=\"${item}\"]/@revision" -v "$NEW_BRANCH" \
+		                     -i "//project[@name=\"${item}\"][not(@revision)]" -t attr -n revision -v "$NEW_BRANCH" \
 				     $manifest_file
                 fi
                 unset 'prjs'
