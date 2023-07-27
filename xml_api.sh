@@ -71,7 +71,7 @@ function parse_manifest()
 	    # So we need to fix their paths.
             for item1 in "${names[@]}"; do
                 for item2 in "${names[@]}"; do
-                    if [[ $item1 == *"$item2"* ]]; then
+                    if [[ $item1 == *"$item2/"* ]]; then
                         if [[ $item1 == $item2 ]]; then
                             continue
                         else
