@@ -25,8 +25,8 @@ function parse_manifest()
                      -r //remoteTMP -v remote \
                      $manifest_file
     # update original aosp node to official aosp
-    xmlstarlet ed -L -u "//remote[@name='aosp']/@fetch" -v \"$AOSP_FETCH\" \
-                     -u "//remote[@name='aosp']/@review" -v \"$AOSP_REVIEW\" \
+    xmlstarlet ed -L -u "//remote[@name='aosp']/@fetch" -v $AOSP_FETCH \
+                     -u "//remote[@name='aosp']/@review" -v $AOSP_REVIEW \
                      $manifest_file
 
     #manifest=$(cat $manifest_file)
