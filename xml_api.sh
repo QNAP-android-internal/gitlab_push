@@ -76,46 +76,47 @@ function parse_manifest()
 	    # previous 4 projects will be affected.
 	    # So we need to fix their paths.
             for item1 in "${names[@]}"; do
+	        # make projects an (name path) associative array
+                projects[${item1}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item1}\"]" -v "./@path" $manifest_file)
+
+		# prjs is an array with 2 elements: (remote revision)
+		#prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" < <(echo $manifest)))
+		prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item1}\"]" -v "./@remote" -n -v "./@revision" $manifest_file))
+
+		# If a specific remote or revision defined for the project, we assume the code is different from the default aosp. Pick it 
+		# out for pushing onto gitlab later.
+		if [[ "${#prjs[@]}" -eq 0 ]]; then 
+                    unset 'projects[$item1]'
+                else
+		    xmlstarlet ed -L -u "//project[@name=\"${item1}\"]/@remote" -v "$REMOTE_NAME" \
+		                     -i "//project[@name=\"${item1}\"][not(@remote)]" -t attr -n remote -v "$REMOTE_NAME" \
+			             -u "//project[@name=\"${item1}\"]/@revision" -v "$NEW_BRANCH" \
+		                     -i "//project[@name=\"${item1}\"][not(@revision)]" -t attr -n revision -v "$NEW_BRANCH" \
+				     $manifest_file
+                fi
+                unset 'prjs'
                 for item2 in "${names[@]}"; do
                     if [[ $item1 == *"$item2/"* ]]; then
                         if [[ $item1 == $item2 ]]; then
                             continue
                         else
-                            tmp_str=${item1#$item2}
-                            new_name=${item2%/}
-                            new_name=${new_name%/*}
-                            new_name=${new_name%/}
-                            new_name=${new_name}${tmp_str}
-                            xmlstarlet ed -L -u "//project[@name=\"${item1}\"]/@name" -v "$new_name" $manifest_file
+                            if [[ ! -z ${projects[$item1]} ]]; then
+                                tmp_str=${item1#$item2}
+                                new_name=${item2%/}
+                                new_name=${new_name%/*}
+                                new_name=${new_name%/}
+                                new_name=${new_name}${tmp_str}
+
+                                unset 'projects[$item1]'
+                                projects[${new_name}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item1}\"]" -v "./@path" $manifest_file)
+
+                                xmlstarlet ed -L -u "//project[@name=\"${item1}\"]/@name" -v "$new_name" $manifest_file
+                            fi
                         fi
                     fi
                 done
             done
             unset names
-
-	    # make projects an (name path) associative array
-            names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n $manifest_file))
-            for item in "${names[@]}"; do
-                projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" $manifest_file)
-            done
-
-            for item in "${names[@]}"; do
-		# prjs is an array with 2 elements: (remote revision)
-		#prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" < <(echo $manifest)))
-		prjs=($(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@remote" -n -v "./@revision" $manifest_file))
-		# If a specific remote or revision defined for the project, we assume the code is different from the default aosp. Pick it 
-		# out for pushing onto gitlab later.
-		if [[ "${#prjs[@]}" -eq 0 ]]; then 
-                    unset 'projects[$item]'
-                else
-		    xmlstarlet ed -L -u "//project[@name=\"${item}\"]/@remote" -v "$REMOTE_NAME" \
-		                     -i "//project[@name=\"${item}\"][not(@remote)]" -t attr -n remote -v "$REMOTE_NAME" \
-			             -u "//project[@name=\"${item}\"]/@revision" -v "$NEW_BRANCH" \
-		                     -i "//project[@name=\"${item}\"][not(@revision)]" -t attr -n revision -v "$NEW_BRANCH" \
-				     $manifest_file
-                fi
-                unset 'prjs'
-            done
             ;;
         *)
             ;;
