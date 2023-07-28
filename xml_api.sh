@@ -56,6 +56,12 @@ function parse_manifest()
 		                 -i "//project[@name=\"${item}\"][not(@revision)]" -t attr -n revision -v "$NEW_BRANCH" \
                                  $manifest_file
             done
+
+	    # make projects an (name path) associative array
+            names=($(xmlstarlet sel -t -v "/manifest/project/@name" -n $manifest_file))
+            for item in "${names[@]}"; do
+                projects[${item}]=$(xmlstarlet sel -t -m "/manifest/project[@name=\"${item}\"]" -v "./@path" $manifest_file)
+            done
             ;;
         'nonaosp')
             printf "analyzing manifest...\n"
