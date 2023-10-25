@@ -190,7 +190,32 @@ function gl_push_project()
     # Create the branch if the branch doesn't exist
     git show-ref --verify --quiet refs/heads/${NEW_BRANCH} || git checkout -b ${NEW_BRANCH}
     #git push -u ${REMOTE_NAME} --all
-    git push -u ${REMOTE_NAME} ${NEW_BRANCH}:${NEW_BRANCH}
+
+    # check if the branch exists on the remote
+    if git show-ref --quiet --verify refs/remotes/${REMOTE_NAME}/${NEW_BRANCH}; then
+        # if so, only push the commits that are not on the remote already
+	local n=$(git rev-list --first-parent --count ${REMOTE_NAME}/${NEW_BRANCH}..HEAD)
+    else
+        # else push all the commits
+	local n=$(git rev-list --first-parent --count HEAD)
+    fi
+
+    # if commits to push is greater than BATCH_SIZE, push them in batches.
+    if (($n > $BATCH_SIZE))
+    then
+        # push commits in batches
+        for i in $(seq $n -$BATCH_SIZE 1); do
+            # get the hash of the commit to push
+            h=$(git rev-list --first-parent --reverse --skip=$i -n1 HEAD)
+            echo "Pushing ($i) $h..."
+            git push ${REMOTE_NAME} ${h}:refs/heads/${NEW_BRANCH}
+        done
+        # push the remaining commits
+        git push ${REMOTE_NAME} HEAD:refs/heads/${NEW_BRANCH}
+    else
+        git push -u ${REMOTE_NAME} ${NEW_BRANCH}:${NEW_BRANCH}
+    fi
+
     #git push -u ${REMOTE_NAME} --tags
 
     cd - > /dev/null

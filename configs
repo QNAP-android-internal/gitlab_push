@@ -16,6 +16,9 @@ NEW_BRANCH="iei-android-12.1.0_r8"
 # Git remote name
 REMOTE_NAME="gitsrv-android"
 
+# size for pushing objects in batches
+BATCH_SIZE=500
+
 #gitlab server
 GITLAB_SRV="gitsrv-android.ieiworld.com"
 URL="https://${GITLAB_SRV}"
